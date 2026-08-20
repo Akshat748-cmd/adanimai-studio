@@ -1,0 +1,50 @@
+// Prisma schema for AI Animated Ad Video Generator (SQLite / Local)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  authProvider  String    @default("email")
+  createdAt     DateTime  @default(now())
+  businesses    Business[]
+}
+
+model Business {
+  id             String         @id @default(uuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceType     String         // "url" | "manual"
+  url            String?
+  name           String
+  category       String
+  description    String
+  products       String         // Stored as JSON string array: e.g. '["Fresh Mango Juice","Orange Punch"]'
+  tone           String?        // e.g. "Friendly", "Energetic", "Professional"
+  location       String?
+  createdAt      DateTime       @default(now())
+  videoProjects  VideoProject[]
+}
+
+model VideoProject {
+  id            String    @id @default(uuid())
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  promptText    String
+  language      String
+  characterId   String
+  status        String    // "queued" | "generating_voice" | "rendering_video" | "completed" | "failed"
+  externalJobId String?
+  errorMessage  String?
+  videoUrl      String?
+  version       Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+}
