@@ -13,6 +13,7 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   authProvider  String    @default("email")
+  credits       Int       @default(500)
   createdAt     DateTime  @default(now())
   businesses    Business[]
 }
@@ -40,6 +41,9 @@ model VideoProject {
   promptText    String
   language      String
   characterId   String
+  voiceStyle    String    @default("professional") // "professional" | "local"
+  videoLength   Int       @default(30)             // 30 | 45 | 60
+  creditsCost   Int       @default(100)
   status        String    // "queued" | "generating_voice" | "rendering_video" | "completed" | "failed"
   externalJobId String?
   errorMessage  String?

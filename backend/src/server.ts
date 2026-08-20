@@ -14,6 +14,7 @@ import { scriptRouter } from './routes/script';
 import { videoRouter } from './routes/video';
 import { businessesRouter } from './routes/businesses';
 import { cronRouter } from './routes/cron';
+import { userRouter } from './routes/user';
 import { startDevWorker } from './queue/devWorker';
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/script', scriptRouter);
 app.use('/api/video', videoRouter);
 app.use('/api/businesses', businessesRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/user', userRouter);
 
 // Start background queue worker
 startDevWorker();

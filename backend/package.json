@@ -12,6 +12,7 @@
     "db:generate:postgres": "prisma generate --schema=prisma/schema.postgresql.prisma"
   },
   "dependencies": {
+    "@adanimai/shared": "*",
     "@prisma/client": "^5.18.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

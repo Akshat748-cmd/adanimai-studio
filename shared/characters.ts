@@ -1,4 +1,4 @@
-import { CharacterOption } from '../types';
+import { CharacterOption } from './types';
 
 export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
   {
@@ -8,7 +8,7 @@ export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
     gender: 'Female',
     description: 'Vibrant, smiling cartoon presenter with continuous hand gestures, expressive eye contact, and natural body swaying.',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    previewVideoUrl: '/samples/presenter_demo_maya.mp4',
     supportsContinuousMotion: true,
     heygenAvatarId: 'avatar_3d_maya_gestures_v2',
     didAvatarId: 'did_cartoon_maya_motion',
@@ -20,7 +20,7 @@ export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
     gender: 'Male',
     description: 'High-energy commercial host with dynamic arm movements, enthusiastic nodding, and active presentation posture.',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    previewVideoUrl: '/samples/presenter_demo_alex.mp4',
     supportsContinuousMotion: true,
     heygenAvatarId: 'avatar_3d_alex_dynamic_v2',
     didAvatarId: 'did_cartoon_alex_motion',
@@ -32,7 +32,7 @@ export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
     gender: 'Female',
     description: 'Warm and friendly Indian animated host with traditional attire, natural hand movements, and engaging storytelling gestures.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    previewVideoUrl: '/samples/presenter_demo_priya.mp4',
     supportsContinuousMotion: true,
     heygenAvatarId: 'avatar_3d_priya_expressive_v2',
     didAvatarId: 'did_cartoon_priya_motion',
@@ -44,7 +44,7 @@ export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
     gender: 'Male',
     description: 'Approachable and trustworthy character with friendly gestures, product pointing actions, and lively movement.',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+    previewVideoUrl: '/samples/presenter_demo_rohan.mp4',
     supportsContinuousMotion: true,
     heygenAvatarId: 'avatar_3d_rohan_retail_v2',
     didAvatarId: 'did_cartoon_rohan_motion',

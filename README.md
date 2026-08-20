@@ -71,29 +71,40 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📂 Project Architecture
 
 ```
-├── app/
-│   ├── api/
-│   │   ├── auth/[...nextauth]/route.ts  # NextAuth endpoint
-│   │   ├── businesses/route.ts          # History & business archive
-│   │   ├── scrape/route.ts              # URL scraping & Pass 1 LLM extraction
-│   │   ├── script/generate/route.ts     # Pass 2 persuasive ad copy generator
-│   │   ├── video/generate/route.ts      # Video job creation & queue dispatcher
-│   │   └── video/status/[id]/route.ts   # Video job status polling
-│   ├── create/page.tsx                  # Screens 2, 3, 4, 5 creation wizard
-│   ├── dashboard/page.tsx               # Screen 6 dashboard & history
-│   ├── login/page.tsx                   # Screen 1 authentication
-│   ├── layout.tsx                       # Root layout & navigation
-│   └── page.tsx                         # Landing page & presenter showcase
-├── lib/
-│   ├── queue/videoQueue.ts              # Background job processing & polling
-│   ├── services/
-│   │   ├── avatar.ts                    # HeyGen / D-ID & character catalog
-│   │   ├── llm.ts                       # Claude Pass 1 & Pass 2 copy generation
-│   │   ├── scraper.ts                   # Web scraping with Firecrawl & fallback
-│   │   └── tts.ts                       # Supported language & neural voice mappings
-│   ├── prisma.ts                        # Prisma database client singleton
-│   ├── types.ts                         # Data types and interfaces
-│   └── utils.ts                         # Utility functions & URL validation
-└── prisma/
-    └── schema.prisma                    # User, Business, and VideoProject schema
+d:/App/App/
+├── package.json               # Root monorepo orchestrator (npm workspaces: frontend, backend, shared)
+├── .env                       # Unified master environment configuration
+├── README.md
+│
+├── frontend/                  # Next.js 14 Web Application (Port 3000)
+│   ├── package.json
+│   ├── next.config.mjs        # Proxies /api/scrape, /api/script/*, /api/video/*, /api/businesses, /api/cron/* to BACKEND_API_URL
+│   ├── app/
+│   │   ├── layout.tsx         # Root layout & navigation
+│   │   ├── page.tsx           # Landing page & character showcase
+│   │   ├── create/page.tsx    # Multi-step video ad creation wizard
+│   │   ├── dashboard/page.tsx # Commercial campaign history & video player
+│   │   ├── login/page.tsx     # NextAuth authentication UI
+│   │   └── api/auth/[...nextauth]/route.ts
+│   ├── components/            # UI components (Navbar, SessionWrapper)
+│   └── lib/                   # NextAuth options & frontend utilities
+│
+├── backend/                   # Express + TypeScript + Prisma API Service (Port 5000)
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── prisma/                # Prisma schema (SQLite dev.db & PostgreSQL)
+│   └── src/
+│       ├── server.ts          # Express API server with CORS & root .env loader
+│       ├── routes/            # /api/scrape, /api/script, /api/video, /api/businesses, /api/cron
+│       ├── services/          # Multi-LLM provider, Scraper, Continuous-Motion Avatar & TTS
+│       ├── queue/             # Video render queue processor & background worker
+│       ├── prisma.ts          # Backend Prisma database client
+│       └── utils.ts
+│
+└── shared/                    # Shared Workspace Package (@adanimai/shared)
+    ├── package.json
+    ├── index.ts               # Re-exports all shared modules
+    ├── types.ts               # BusinessProfile, CharacterOption, LanguageOption, VideoJobStatus, VideoProjectData
+    ├── languages.ts           # SUPPORTED_LANGUAGES catalog
+    └── characters.ts          # CONTINUOUS_MOTION_CHARACTERS display data & static fallback IDs
 ```

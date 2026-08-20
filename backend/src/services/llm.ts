@@ -1,4 +1,4 @@
-import { BusinessProfile } from '../types';
+import { BusinessProfile } from '@adanimai/shared';
 
 export interface ExtractedBusinessData {
   name: string;
@@ -271,6 +271,12 @@ function detectCategoryFromContent(content: string, url?: string, name?: string)
   const text = `${url || ''} ${name || ''} ${content}`.toLowerCase();
 
   if (
+    /\b(gift|gifting|sustainable|eco-friendly|bamboo|seed paper|corporate gift|greener|handicraft|stationery|custom merchandise|hampers?|green chapter)\b/i.test(text)
+  ) {
+    return 'Sustainable & Corporate Gifting';
+  }
+
+  if (
     /\b(school|public school|vidyalaya|academy|college|university|institute|admissions?|students?|cbse|icse|rbse|board|class(?:es)?|standard|playgroup|nursery|kindergarten|k-12|curriculum|faculty|campus|tuition|coaching|education|learning|exam|syllabus|alumni)\b/i.test(text)
   ) {
     return 'Education & Coaching';
@@ -330,6 +336,10 @@ function detectCategoryFromContent(content: string, url?: string, name?: string)
 function extractOfferingsFromContent(rawContent: string, category: string): string[] {
   const contentLower = rawContent.toLowerCase();
   const offerings: string[] = [];
+
+  if (category === 'Sustainable & Corporate Gifting') {
+    return ['Eco-Friendly Corporate Gifts & Hampers', 'Custom Plantable Seed & Bamboo Products', 'Sustainable Brand Merchandise'];
+  }
 
   if (category === 'Education & Coaching') {
     if (/admission/i.test(contentLower)) offerings.push('Admissions Open (Playgroup to Class XII)');
@@ -428,6 +438,16 @@ function generateTailoredCategoryScript(business: BusinessProfile, lang: string)
   const allProds = business.products.slice(0, 2).join(' और ') || prod;
   const loc = business.location ? ` (${business.location})` : '';
   const locEn = business.location ? ` in ${business.location}` : '';
+
+  if (category === 'Sustainable & Corporate Gifting') {
+    switch (lang) {
+      case 'hi':
+        return `क्या आप अपने ब्रांड और कॉर्पोरेट इवेंट्स के लिए 100% इको-फ्रेंडली और प्रीमियम गिफ्ट्स ढूंढ रहे हैं? तो आज ही जुड़िए ${name}${loc} से! यहाँ आपको मिलते हैं कस्टम ${allProds} जो आपके ब्रांड को देते हैं एक ग्रीन और सस्टेनेबल पहचान। आज ही अपने कॉर्पोरेट ऑर्डर्स के लिए संपर्क करें!`;
+      case 'en':
+      default:
+        return `Looking to make your corporate gifting meaningful and eco-friendly? Partner with ${name}${locEn}! We bring you premium, customized ${allProds} designed for a greener corporate future. Elevate your brand with sustainable corporate gifts — connect with us today!`;
+    }
+  }
 
   if (category === 'Education & Coaching') {
     switch (lang) {

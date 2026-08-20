@@ -23,6 +23,7 @@ export async function createAndDispatchVideoJob(videoProjectId: string) {
       promptText: project.promptText,
       languageCode: project.language,
       characterId: project.characterId,
+      voiceStyle: (project.voiceStyle as any) || 'professional',
     });
 
     const updated = await prisma.videoProject.update({
@@ -45,6 +46,7 @@ export async function createAndDispatchVideoJob(videoProjectId: string) {
         errorMessage: error.message || 'Failed to initialize video generation job.',
       },
     });
+    // TODO: Determine refund policy if job fails at provider level (do NOT auto-refund without explicit policy)
     throw error;
   }
 }

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@adanimai/shared'],
   images: {
     remotePatterns: [
       {
@@ -31,6 +32,10 @@ const nextConfig = {
       {
         source: '/api/cron/:path*',
         destination: `${backendUrl}/api/cron/:path*`,
+      },
+      {
+        source: '/api/user/:path*',
+        destination: `${backendUrl}/api/user/:path*`,
       },
     ];
   },

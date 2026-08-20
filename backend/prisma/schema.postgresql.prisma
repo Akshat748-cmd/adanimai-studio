@@ -1,4 +1,4 @@
-// Prisma schema for AI Animated Ad Video Generator (PostgreSQL Production Target)
+// Prisma schema for AI Animated Ad Video Generator (PostgreSQL / Production)
 
 generator client {
   provider = "prisma-client-js"
@@ -13,6 +13,7 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   authProvider  String    @default("email")
+  credits       Int       @default(500)
   createdAt     DateTime  @default(now())
   businesses    Business[]
 }
@@ -40,6 +41,9 @@ model VideoProject {
   promptText    String
   language      String
   characterId   String
+  voiceStyle    String    @default("professional")
+  videoLength   Int       @default(30)
+  creditsCost   Int       @default(100)
   status        String    // "queued" | "generating_voice" | "rendering_video" | "completed" | "failed"
   externalJobId String?
   errorMessage  String?

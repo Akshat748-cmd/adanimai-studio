@@ -1,61 +1,40 @@
-import { CharacterOption, VideoJobStatus } from '../types';
-import { SUPPORTED_LANGUAGES } from '../config/languages';
+import {
+  CharacterOption,
+  VideoJobStatus,
+  SUPPORTED_LANGUAGES,
+  CONTINUOUS_MOTION_CHARACTERS,
+  VoiceStyle,
+} from '@adanimai/shared';
 
-export const CONTINUOUS_MOTION_CHARACTERS: CharacterOption[] = [
-  {
-    id: 'char_cartoon_maya',
-    name: 'Maya (3D Animated Presenter)',
-    style: '3D Stylized Pixar Style',
-    gender: 'Female',
-    description: 'Vibrant, smiling cartoon presenter with continuous hand gestures, expressive eye contact, and natural body swaying.',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    supportsContinuousMotion: true,
-    heygenAvatarId: process.env.HEYGEN_AVATAR_ID_MAYA || 'avatar_3d_maya_gestures_v2',
-    didAvatarId: process.env.DID_AVATAR_ID_MAYA || 'did_cartoon_maya_motion',
-  },
-  {
-    id: 'char_cartoon_alex',
-    name: 'Alex (Dynamic Cartoon Host)',
-    style: 'Modern 3D Animated',
-    gender: 'Male',
-    description: 'High-energy commercial host with dynamic arm movements, enthusiastic nodding, and active presentation posture.',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    supportsContinuousMotion: true,
-    heygenAvatarId: process.env.HEYGEN_AVATAR_ID_ALEX || 'avatar_3d_alex_dynamic_v2',
-    didAvatarId: process.env.DID_AVATAR_ID_ALEX || 'did_cartoon_alex_motion',
-  },
-  {
-    id: 'char_cartoon_priya',
-    name: 'Priya (Indian Traditional Stylized)',
-    style: 'Vibrant 3D Cartoon',
-    gender: 'Female',
-    description: 'Warm and friendly Indian animated host with traditional attire, natural hand movements, and engaging storytelling gestures.',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    supportsContinuousMotion: true,
-    heygenAvatarId: process.env.HEYGEN_AVATAR_ID_PRIYA || 'avatar_3d_priya_expressive_v2',
-    didAvatarId: process.env.DID_AVATAR_ID_PRIYA || 'did_cartoon_priya_motion',
-  },
-  {
-    id: 'char_cartoon_rohan',
-    name: 'Rohan (Friendly Retail Guide)',
-    style: '3D Claymation Style',
-    gender: 'Male',
-    description: 'Approachable and trustworthy character with friendly gestures, product pointing actions, and lively movement.',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
-    previewVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
-    supportsContinuousMotion: true,
-    heygenAvatarId: process.env.HEYGEN_AVATAR_ID_ROHAN || 'avatar_3d_rohan_retail_v2',
-    didAvatarId: process.env.DID_AVATAR_ID_ROHAN || 'did_cartoon_rohan_motion',
-  },
-];
+export { CONTINUOUS_MOTION_CHARACTERS };
+
+const HEYGEN_ENV_OVERRIDE_MAP: Record<string, string | undefined> = {
+  char_cartoon_maya: process.env.HEYGEN_AVATAR_ID_MAYA,
+  char_cartoon_alex: process.env.HEYGEN_AVATAR_ID_ALEX,
+  char_cartoon_priya: process.env.HEYGEN_AVATAR_ID_PRIYA,
+  char_cartoon_rohan: process.env.HEYGEN_AVATAR_ID_ROHAN,
+};
+
+const DID_ENV_OVERRIDE_MAP: Record<string, string | undefined> = {
+  char_cartoon_maya: process.env.DID_AVATAR_ID_MAYA,
+  char_cartoon_alex: process.env.DID_AVATAR_ID_ALEX,
+  char_cartoon_priya: process.env.DID_AVATAR_ID_PRIYA,
+  char_cartoon_rohan: process.env.DID_AVATAR_ID_ROHAN,
+};
+
+function getEffectiveHeygenAvatarId(character: CharacterOption): string {
+  return HEYGEN_ENV_OVERRIDE_MAP[character.id] || character.heygenAvatarId;
+}
+
+function getEffectiveDidAvatarId(character: CharacterOption): string {
+  return DID_ENV_OVERRIDE_MAP[character.id] || character.didAvatarId;
+}
 
 export interface CreateVideoJobParams {
   promptText: string;
   languageCode: string;
   characterId: string;
+  voiceStyle?: VoiceStyle | string;
 }
 
 export interface VideoJobResponse {
@@ -75,9 +54,13 @@ function getDIDAuthorizationHeader(apiKey: string): string {
 }
 
 export async function createAvatarVideoJob(params: CreateVideoJobParams): Promise<VideoJobResponse> {
-  const { promptText, languageCode, characterId } = params;
+  const { promptText, languageCode, characterId, voiceStyle = 'professional' } = params;
   const character = CONTINUOUS_MOTION_CHARACTERS.find((c) => c.id === characterId) || CONTINUOUS_MOTION_CHARACTERS[0];
   const langConfig = SUPPORTED_LANGUAGES.find((l) => l.code === languageCode) || SUPPORTED_LANGUAGES[0];
+
+  // Resolve voice ID based on selected voice style
+  const selectedVoiceId =
+    voiceStyle === 'local' ? langConfig.localVoiceId : langConfig.professionalVoiceId;
 
   const heygenKey = process.env.HEYGEN_API_KEY;
   const didKey = process.env.DID_API_KEY;
@@ -95,13 +78,13 @@ export async function createAvatarVideoJob(params: CreateVideoJobParams): Promis
             {
               character: {
                 type: 'avatar',
-                avatar_id: character.heygenAvatarId,
+                avatar_id: getEffectiveHeygenAvatarId(character),
                 avatar_style: 'normal',
               },
               voice: {
                 type: 'text',
                 input_text: promptText,
-                voice_id: langConfig.avatarVoiceId,
+                voice_id: selectedVoiceId,
                 speed: 1.0,
               },
               background: {
@@ -158,7 +141,7 @@ export async function createAvatarVideoJob(params: CreateVideoJobParams): Promis
             input: promptText,
             provider: {
               type: 'microsoft',
-              voice_id: langConfig.avatarVoiceId,
+              voice_id: selectedVoiceId,
             },
           },
           config: {

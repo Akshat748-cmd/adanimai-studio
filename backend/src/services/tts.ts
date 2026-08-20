@@ -1,1 +1,1 @@
-export { SUPPORTED_LANGUAGES } from '../config/languages';
+export { SUPPORTED_LANGUAGES } from '@adanimai/shared';

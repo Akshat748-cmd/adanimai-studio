@@ -1,115 +1,169 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
-  LayoutDashboard,
   LogIn,
   LogOut,
-  Wand2,
   Menu,
   X,
-  Zap,
-  Users,
-  HelpCircle,
-  ChevronRight
+  Sun,
+  Moon,
+  User,
+  ChevronDown
 } from 'lucide-react';
+import { useTheme } from './ThemeProvider';
 
 export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Create Ad', href: '/create', icon: Wand2 },
-    { name: 'My Projects', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Presenters', href: '/#presenters', icon: Users },
-    { name: 'How It Works', href: '/#how-it-works', icon: HelpCircle },
+    { name: 'Studio Workspace', href: '/workspace' },
+    { name: 'Presenters', href: '/#presenters' },
+    { name: 'How It Works', href: '/#how-it-works' },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-xl transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-surface/95 backdrop-blur-md transition-colors duration-200 text-text-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-blue-600 flex items-center justify-center shadow-md shadow-violet-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white animate-pulse" />
+          <div className="h-8 w-8 rounded-xl bg-accent text-white flex items-center justify-center shadow-sm">
+            <Sparkles className="h-4 w-4" />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
-                AdAnim<span className="gradient-text">AI</span>
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-                PRO
-              </span>
-            </div>
-            <p className="text-[10px] text-slate-500 hidden sm:block leading-none">
-              AI Animated Video Ads
-            </p>
+          <div className="flex items-center gap-1.5">
+            <span className="font-black text-lg tracking-tight text-text-primary">
+              AdAnim<span className="text-accent">AI</span>
+            </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+        {/* Desktop Nav Links (Plain text, subtle active indicator, no boxy pills) */}
+        <nav className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
-            const Icon = link.icon;
             return (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                className={`relative py-1 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-violet-50 text-violet-700 font-semibold border border-violet-200 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    ? 'text-accent font-semibold'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
-                {Icon && <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-violet-600' : 'text-slate-400'}`} />}
                 <span>{link.name}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-accent rounded-full"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Right Action Items */}
+        {/* Right Section: Compact Theme Toggle + User Avatar */}
         <div className="hidden sm:flex items-center gap-3">
-          {/* Free Credits Badge */}
-          <div className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/80 border border-slate-200 text-slate-600 text-xs font-medium">
-            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-            <span>50 Free Credits</span>
-          </div>
+          {/* Animated Sun/Moon Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-raised transition-colors cursor-pointer"
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            aria-label="Toggle Theme"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {theme === 'light' ? (
+                <motion.div
+                  key="moon"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Moon className="h-4 w-4" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="sun"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Sun className="h-4 w-4 text-amber-400" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
 
-          <div className="h-4 w-[1px] bg-slate-200 hidden lg:block" />
-
-          {/* User Auth Section */}
+          {/* User Profile Dropdown or Sign In */}
           {session ? (
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100/80 border border-slate-200">
-                <div className="h-6 w-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold">
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex items-center gap-2 py-1.5 px-2.5 rounded-xl hover:bg-surface-raised transition-colors cursor-pointer"
+              >
+                <div className="h-7 w-7 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold shadow-sm">
                   {session.user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <span className="text-xs font-medium text-slate-700 max-w-[120px] truncate">
-                  {session.user?.email?.split('@')[0]}
-                </span>
-              </div>
-              <button
-                onClick={() => signOut({ callbackUrl: '/' })}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all"
-                title="Sign Out"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden lg:inline">Logout</span>
+                <ChevronDown className="h-3.5 w-3.5 text-text-tertiary" />
               </button>
+
+              <AnimatePresence>
+                {userDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-48 rounded-2xl bg-surface border border-border-subtle shadow-elevated p-2 text-xs z-50"
+                  >
+                    <div className="px-3 py-2 border-b border-border-subtle mb-1">
+                      <p className="text-[10px] text-text-tertiary uppercase tracking-wider">Signed in as</p>
+                      <p className="font-semibold text-text-primary truncate">{session.user?.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-500/10 transition-colors text-left font-medium cursor-pointer"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Log out</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <Link
               href="/login"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white gradient-button flex items-center gap-1.5 shadow-md shadow-violet-500/20"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-accent hover:bg-accent-hover flex items-center gap-1.5 transition-all shadow-sm"
             >
               <LogIn className="h-3.5 w-3.5" />
               <span>Sign In</span>
@@ -117,11 +171,19 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Hamburger Toggle */}
+        {/* Mobile Hamburger Menu */}
         <div className="flex items-center gap-2 sm:hidden">
           <button
+            onClick={toggleTheme}
+            className="p-2 text-text-secondary"
+            aria-label="Toggle Theme"
+          >
+            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4 text-amber-400" />}
+          </button>
+
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
+            className="p-2 text-text-secondary hover:text-text-primary"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -129,51 +191,36 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-xl px-4 py-4 space-y-2 shadow-xl animate-in slide-in-from-top-2">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-violet-50 text-violet-700 font-semibold border border-violet-200'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  {Icon && <Icon className={`h-4 w-4 ${isActive ? 'text-violet-600' : 'text-slate-400'}`} />}
-                  <span>{link.name}</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400" />
-              </Link>
-            );
-          })}
-
-          <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
+        <div className="sm:hidden border-t border-border-subtle bg-surface px-4 py-4 space-y-3">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block py-1.5 text-sm font-medium ${
+                pathname === link.href ? 'text-accent font-semibold' : 'text-text-secondary'
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <div className="pt-2 border-t border-border-subtle">
             {session ? (
-              <div className="flex items-center justify-between px-2 pt-1">
-                <span className="text-xs text-slate-500 truncate">{session.user?.email}</span>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  className="text-xs font-semibold text-rose-600 hover:underline"
-                >
-                  Logout
-                </button>
-              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="text-xs font-semibold text-rose-600"
+              >
+                Log out ({session.user?.email})
+              </button>
             ) : (
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-center text-sm font-semibold text-white gradient-button flex items-center justify-center gap-2"
+                className="block text-center py-2 rounded-xl bg-accent text-white font-semibold text-xs"
               >
-                <LogIn className="h-4 w-4" />
-                <span>Sign In to Account</span>
+                Sign In
               </Link>
             )}
           </div>

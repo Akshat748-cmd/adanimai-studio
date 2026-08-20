@@ -20,16 +20,8 @@ scrapeRouter.post('/', async (req: Request, res: Response) => {
 
     const scrapeResult = await scrapeBusinessUrl(formatted);
 
-    if (!scrapeResult.success || !scrapeResult.content) {
-      return res.json({
-        success: false,
-        errorMessage: scrapeResult.errorMessage || "We couldn't fetch details from this URL. Please try again or enter details manually.",
-        autoSwitchToManual: true,
-      });
-    }
-
     const businessData = await analyzeBusinessWithLLM(
-      scrapeResult.content,
+      scrapeResult.content || formatted,
       scrapeResult.url,
       {
         name: scrapeResult.title,
@@ -37,13 +29,16 @@ scrapeRouter.post('/', async (req: Request, res: Response) => {
       }
     );
 
+    const resultBusiness = {
+      ...businessData,
+      sourceType: 'url',
+      url: scrapeResult.url,
+    };
+
     return res.json({
       success: true,
-      data: {
-        ...businessData,
-        sourceType: 'url',
-        url: scrapeResult.url,
-      },
+      business: resultBusiness,
+      data: resultBusiness,
     });
   } catch (error: any) {
     console.error('Error in /api/scrape:', error);
